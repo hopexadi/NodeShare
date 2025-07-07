@@ -1,4 +1,10 @@
 import File from "../models/file.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const BASE_URL =
+  process.env.BASE_URL || `http://localhost:${process.env.PORT || 8000}`;
 
 export const uploadImage = async (request, response) => {
   const fileObj = {
@@ -8,9 +14,7 @@ export const uploadImage = async (request, response) => {
 
   try {
     const file = await File.create(fileObj);
-    response
-      .status(200)
-      .json({ path: `http://localhost:8000/file/${file._id}` });
+    response.status(200).json({ path: `${BASE_URL}/file/${file._id}` });
   } catch (error) {
     console.error(error.message);
     response.status(500).json({ error: error.message });
@@ -20,9 +24,7 @@ export const uploadImage = async (request, response) => {
 export const getImage = async (request, response) => {
   try {
     const file = await File.findById(request.params.fileId);
-
     file.downloadCount++;
-
     await file.save();
 
     response.download(file.path, file.name);
